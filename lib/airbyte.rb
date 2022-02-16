@@ -1,8 +1,15 @@
 # frozen_string_literal: true
 
 require_relative "airbyte/version"
-require "airbyte/config"
 require "airbyte/workspace"
+require "airbyte/resources/source_definition"
+require "airbyte/resources/destination_definition"
+
+require "airbyte/resources/scheduler"
+require "airbyte/resources/source"
+require "airbyte/resources/destination"
+require "airbyte/resources/connection"
+
 require "faraday"
 require 'ostruct'
 
