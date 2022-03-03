@@ -116,51 +116,26 @@ destination_params = {
 puts "destination added"
 destination_id = "1bebb54d-ec7a-4d65-9150-b357740dd688" #resp['destinationId'] #"destinationId"=>"90eeca59-c397-4242-b32c-a0b5da5e96eb"
 
-# 9. Create a connection
-# Get source specification schema. 
+
+# 9. Get source specification schema. 
+source_schema = Airbyte.source.discover_schema(source_id)
+streams = source_schema["catalog"]["streams"]
+stream = streams.find {|item| item["stream"]["name"].include?("ACCOUNT_INFO")}
+puts stream
+
+
+# 10. Create a connection
 # Pass required schema while creating a connection.
 sync_mode = "incremental"
+stream["config"]["syncMode"] = sync_mode
+stream["config"]["cursorField"] = ["SITE"]
+
 connection_params = {
     sourceId: source_id,
     destinationId: destination_id,
     syncCatalog: {
       streams: [
-        {
-          config: {
-            syncMode: sync_mode,
-            cursorField: ["SITE"],
-            destinationSyncMode: "append",
-            primaryKey: [],
-            aliasName: "ACCOUNT_INFO",
-            selected: true
-          },
-          stream: {
-            name: "ACCOUNT_INFO",
-            jsonSchema: {
-              type: "object",
-              properties: {
-                SITE: {
-                  type: "string"
-                },
-                UUID: {
-                  type: "string"
-                },
-                TIMEZONE: {
-                  type: "string"
-                }
-              }
-            },
-            supportedSyncModes: [
-              "full_refresh",
-              "incremental"
-            ],
-            sourceDefinedCursor: nil,
-            defaultCursorField: [],
-            sourceDefinedPrimaryKey: [],
-            namespace: "DELIVERABILITY_DASHBOARD"
-          },
-        },
-        
+        stream,
       ]
     },
     prefix: "",
