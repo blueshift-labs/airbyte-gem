@@ -1,23 +1,24 @@
 require "json"
 module Airbyte
   def self.source; Source.new; end
-  class Source
+  class Source < BaseClient
     def create(params)
-      response = Airbyte.conn.post do |req|
-          req.url "/api/v1/sources/create"
-          req.body = params.to_json
-      end
-      JSON.parse(response.body)
+      handle_request("/api/v1/sources/create", body: params)
     end
+
     def discover_schema(source_id)
       params = {
         sourceId: source_id
       }
-      response = Airbyte.conn.post do |req|
-          req.url "/api/v1/sources/discover_schema"
-          req.body = params.to_json
-      end
-      JSON.parse(response.body)
+      handle_request("/api/v1/sources/discover_schema", body: params)
+    end
+
+    def get_definition_id(workspace_id,source_name)
+      Airbyte.source_definition.get_id(workspace_id,source_name)
+    end
+
+    def validate_config(definition_id, connection_config)
+      Airbyte.scheduler.validate_source_config(definition_id, connection_config)
     end
   end 
 end

@@ -2,10 +2,9 @@ require "faraday"
 require "json"
 module Airbyte
   def self.workspace; Workspace.new; end
-  class Workspace
+  class Workspace < BaseClient
     def list
-      response = Airbyte.conn.post "/api/v1/workspaces/list"
-      JSON.parse(response.body)
+      handle_request("/api/v1/workspaces/list")
     end
 
     def create(email, name)
@@ -16,11 +15,7 @@ module Airbyte
           news: false,
           securityUpdates: false,
       }
-      response = Airbyte.conn.post do |req|
-          req.url "/api/v1/workspaces/create"
-          req.body = params.to_json
-      end
-      JSON.parse(response.body)
+      handle_request("/api/v1/workspaces/create", body: params)
   end
   end 
 end
