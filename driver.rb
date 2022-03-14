@@ -3,12 +3,6 @@ $LOAD_PATH.unshift File.dirname(__FILE__) + '/lib'
 require_relative './lib/airbyte.rb'
 require "logger"
 require "awesome_print"
-# require "airbyte"
-# Airbyte.conn "http://localhost:8086"
-
-# Airbyte.configure do |config|
-#   config.url = "http://localhost:8000"
-# end
 
 Airbyte.configure do |config|
   config.logger = Logger.new(STDOUT)
@@ -20,24 +14,16 @@ Airbyte.configure do |config|
 end
 
 # 1. Create Workspace
-# workspace = Airbyte.workspace.create("newtest1@gmail.com", "NewTest1")
+workspace = Airbyte.workspace.create("newtest1@gmail.com", "NewTest1")
 
 # 2. List Workspace
-# puts Airbyte.workspace.list
+puts Airbyte.workspace.list
 
-# #puts workspace['workspaceId']
+# puts workspace['workspaceId']
+# workspace_id = workspace['workspaceId']
 workspace_id = "82ecf7af-d0c6-4c47-b9e3-0f9040474611"
 
 # 3.Get List of Source Definitions
-# resp = Airbyte.source_definition.list_latest(workspace_id)
-# list = resp['sourceDefinitions']
-# snowflake_source_def_id = nil
-# snowflake = "Snowflake"
-# list.each do |item|
-#     if item['name'] == snowflake
-#         snowflake_source_def_id = item['sourceDefinitionId']
-#     end
-# end
 source_name = "Snowflake"
 snowflake_source_def_id = Airbyte.source.get_definition_id(workspace_id,source_name)
 puts snowflake_source_def_id
@@ -56,21 +42,20 @@ source_connection_config = {
   username: 'blueshift2',
   host: 'wk08061.snowflakecomputing.com',
 }
-# resp = Airbyte.source.validate_config(snowflake_source_def_id, source_connection_config)
-# if resp['status'] != 'succeeded'
-#     puts resp['message']
-#     exit
-# end
+resp = Airbyte.source.validate_config(snowflake_source_def_id, source_connection_config)
+if resp['status'] != 'succeeded'
+    puts resp['message']
+    exit
+end
 
-puts "Done Source Validation"
 source_params = {
-    name:"snowflake_via gem1",
+    name:"snowflake_via gem_2",
     sourceDefinitionId: snowflake_source_def_id,
     workspaceId: workspace_id,
     connectionConfiguration: source_connection_config
 }
-# resp = Airbyte.source.create(source_params)
-# puts resp
+resp = Airbyte.source.create(source_params)
+puts resp
 puts "-- Created Source --"
 source_id = "ac1c93b5-d521-4586-8c25-fe4b6eb02c7b"# resp['sourceId']
 
@@ -96,17 +81,15 @@ destination_connection_config = {
     s3_bucket_name: "bsft-de-airbyte-testing",
     s3_endpoint: ""
 }
-# destination_config = {
-#     destinationDefinitionId: s3_destination_def_id,
-#     connectionConfiguration: destination_connection_config
-# }
-puts "validate s3 config"
-# resp = Airbyte.destination.validate_config(s3_destination_def_id, destination_connection_config)
-# puts resp['status']
-# if resp['status'] != 'succeeded'
-#     puts resp['message']
-#     exit
-# end
+
+puts "validate destination config"
+resp = Airbyte.destination.validate_config(s3_destination_def_id, destination_connection_config)
+puts resp['status']
+if resp['status'] != 'succeeded'
+    puts resp['message']
+    exit
+end
+
 destination_params = {
     name:"s3_via_gem1_1",
     destinationDefinitionId: s3_destination_def_id,
@@ -131,9 +114,6 @@ stream = streams.find {|item| item["stream"]["name"].include?("ACCOUNT_INFO")}
 stream_name = "ACCOUNT_INFO"
 cursor_field = "SITE"
 
-# sync_mode = "incremental"
-# stream["config"]["syncMode"] = sync_mode
-# stream["config"]["cursorField"] = ["SITE"]
 connection_params = {
   source_id: source_id,
   destination_id: destination_id,
@@ -151,25 +131,6 @@ connection_params = {
   namespace_format: "${SOURCE_NAMESPACE}",
   status: "inactive"
 }
-
-# connection_params1 = {
-#     sourceId: source_id,
-#     destinationId: destination_id,
-#     syncCatalog: {
-#       streams: [
-#         stream,
-#       ]
-#     },
-#     prefix: "",
-#     namespaceDefinition: "source",
-#     namespaceFormat: "${SOURCE_NAMESPACE}",
-#     schedule: {
-#       units: 30,
-#       timeUnit: "minutes"
-#     },
-#     status: "inactive"
-#   }
-# ap connection_params1
 
 resp = Airbyte.sync_connection.create(connection_params)
 puts resp

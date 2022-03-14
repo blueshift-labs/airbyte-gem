@@ -8,8 +8,6 @@ module Airbyte
       streams = source_schema["catalog"]["streams"]
       stream_config = params[:stream_config]
       stream = streams.find {|item| item["stream"]["name"].include?(stream_config[:name])}
-      puts "-------- stream ---------"
-      puts stream
       stream["config"]["syncMode"] = stream_config[:sync_mode]
       if stream_config[:sync_mode] == "incremental"
         stream["config"]["cursorField"] = stream_config[:cursor_field]
@@ -31,13 +29,6 @@ module Airbyte
         },
         status: params[:status]
       }
-      # response = Airbyte.conn.post do |req|
-      #   req.url  "/api/v1/web_backend/connections/create"
-      #   req.body = params.to_json
-      # end
-      # puts response.status
-      # JSON.parse(response.body)
-      ap connection_params
       handle_request("/api/v1/web_backend/connections/create", body: connection_params)
     end
   end 
