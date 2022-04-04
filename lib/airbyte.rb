@@ -54,9 +54,11 @@ module Airbyte
     @connection = ConnectionPool::Wrapper.new(size: @configuration.pool || 32, timeout: @configuration.timeout || 10) do
       connection = Faraday.new(:url => @configuration.host + ":#{@configuration.port|| 80}") do |builder|
         if @configuration.log_faraday_responses
-          builder.adapter Faraday::Response::Logger, @configuration.logger || :logger
+          #builder.adapter Faraday::Response::Logger, @configuration.logger || :logger
+          builder.use Faraday::Response::Logger, @configuration.logger || :logger
         end
-        builder.adapter Faraday::Adapter::Typhoeus
+        # builder.adapter Faraday::Adapter::Typhoeus
+        builder.use Faraday::Adapter::Typhoeus
         #builder.use FaradayMiddleware::ParseJson #cool for parsing response bodies
       end
       connection.path_prefix = ""
