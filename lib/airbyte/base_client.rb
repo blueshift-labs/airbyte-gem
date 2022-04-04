@@ -1,3 +1,5 @@
+require 'net/http'
+
 module Airbyte
   class RequestError < StandardError
 
@@ -34,9 +36,9 @@ module Airbyte
     end
 
     def handle_request_with_headers(url, http_verb, params: nil, body: nil)
-      raise StandardError.new("Unstubbed Orbits call from test") if Rails.env.test?
+      raise StandardError.new("Unstubbed Airbyte call from test") if Rails.env.test?
       result = nil
-      Orbits.connection.with do |faraday_connection|
+      Airbyte.connection.with do |faraday_connection|
         result = faraday_connection.send(http_verb.to_s) do |request|
           request.url url
           request.headers['Content-Type'] = 'application/json'
@@ -50,10 +52,10 @@ module Airbyte
     end
 
     def handle_result(result)
-      if result.status == 200 || result.status == 404
+      if [200, 204, 404].include? result.status
         JSON.load(result.body)
       else
-        raise RequestError.new("Airbyte error status=#{result.status}", result.body)
+        raise RequestError.new("Airbyte error status=#{result.status} #{JSON.load(result.body)}", result.body)
       end
     end
   end

@@ -16,6 +16,6 @@ module Airbyte
           securityUpdates: false,
       }
       handle_request("/api/v1/workspaces/create", body: params)
-  end
+    end
   end 
 end
