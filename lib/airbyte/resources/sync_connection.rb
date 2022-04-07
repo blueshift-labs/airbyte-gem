@@ -62,6 +62,11 @@ module Airbyte
       handle_request("/api/v1/web_backend/connections/update", body: connection_params)
     end
 
+    def trigger_sync(connection_id)    
+      params = {connectionId: connection_id}
+      handle_request("/api/v1/connections/sync", body: params)
+    end
+
     def delete(connection_id)    
       params = {connectionId: connection_id}
       handle_request("/api/v1/connections/delete", body: params)
