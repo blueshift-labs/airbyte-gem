@@ -25,7 +25,7 @@ Gem::Specification.new do |spec|
 
   # Uncomment to register a new dependency of your gem
   # spec.add_dependency "example-gem", "~> 1.0"
-  spec.add_runtime_dependency "json"
+  spec.add_runtime_dependency "json", "~> 2.3.0"
   spec.add_runtime_dependency "faraday"
   spec.add_runtime_dependency "faraday_middleware"
 
