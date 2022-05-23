@@ -1,18 +1,7 @@
-require "faraday"
-require "json"
 module Airbyte
   def self.scheduler; Scheduler.new; end
   class Scheduler < BaseClient
-    def validate_source_config(source_definition_id, params)
-      connection_config = {
-        role: params[:role],
-        warehouse: params[:warehouse],
-        database: params[:database],
-        schema: params[:schema],
-        password: params[:password],
-        username: params[:username],
-        host: params[:host]
-      }
+    def validate_source_config(source_definition_id, connection_config)
       source_config = {
         sourceDefinitionId: source_definition_id,
         connectionConfiguration: connection_config

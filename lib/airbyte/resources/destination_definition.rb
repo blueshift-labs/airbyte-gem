@@ -1,17 +1,13 @@
-require "faraday"
-require "json"
+
 module Airbyte
   def self.destination_definition; DestinationDefinition.new; end
   class DestinationDefinition < BaseClient
-    def list_latest(workspace_id)
-      params = {
-          workspaceId: workspace_id
-      }
-      handle_request("/api/v1/destination_definitions/list_latest", body: params)
+    def list()
+      handle_request("/api/v1/destination_definitions/list")
     end
     
-    def get_id(workspace_id, destination_name)
-      resp = list_latest(workspace_id)
+    def get_id(destination_name)
+      resp = list()
       list = resp['destinationDefinitions']
       id = nil
       list.each do |item|
