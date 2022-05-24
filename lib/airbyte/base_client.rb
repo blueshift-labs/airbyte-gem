@@ -3,22 +3,25 @@ require 'net/http'
 module Airbyte
   class RequestError < StandardError
 
-    attr_reader :body
-
-    def initialize(msg, body)
-      super(msg)
-      @body = body
-    end
-
-  end
-
-  class InputValidationError < StandardError
-
-    attr_reader :body, :status_code
+    attr_reader :body, :message, :status_code
 
     def initialize(msg, code, body)
       super(msg)
       @body = body
+      @message = msg
+      @status_code = code
+    end 
+    
+  end
+
+  class InputValidationError < StandardError
+
+    attr_reader :body, :status_code, :message
+
+    def initialize(msg, code, body)
+      super(msg)
+      @body = body
+      @message = msg
       @status_code = code 
     end
 
@@ -26,11 +29,12 @@ module Airbyte
 
   class ObjectNotFoundError < StandardError
 
-    attr_reader :body, :status_code
+    attr_reader :body, :status_code, :message
 
     def initialize(msg, code, body)
       super(msg)
       @body = body
+      @message = msg
       @status_code = code 
     end
 
@@ -83,7 +87,7 @@ module Airbyte
       elsif result.status == 422
         raise InputValidationError.new(result.body["message"],result.status, JSON.load(result.body))
       else
-        raise RequestError.new("Airbyte error status=#{result.status} #{JSON.load(result.body)}", JSON.load(result.body))
+        raise RequestError.new("Airbyte Request error", result.status, JSON.load(result.body))
       end
     end
   end
