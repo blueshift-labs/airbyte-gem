@@ -11,7 +11,7 @@ module Airbyte
       @message = msg
       @status_code = code
     end 
-    
+
   end
 
   class InputValidationError < StandardError
@@ -22,7 +22,7 @@ module Airbyte
       super(msg)
       @body = body
       @message = msg
-      @status_code = code 
+      @status_code = code
     end
 
   end
@@ -80,14 +80,15 @@ module Airbyte
     end
 
     def handle_result(result)
+      json_body = JSON.load(result.body)
       if [200, 204].include? result.status
-        JSON.load(result.body)
+        json_body
       elsif result.status == 404
-        raise ObjectNotFoundError.new(result.body["message"],result.status, JSON.load(result.body))
+        raise ObjectNotFoundError.new(json_body["message"],result.status, json_body)
       elsif result.status == 422
-        raise InputValidationError.new(result.body["message"],result.status, JSON.load(result.body))
+        raise InputValidationError.new(json_body["message"],result.status, json_body)
       else
-        raise RequestError.new("Airbyte Request error", result.status, JSON.load(result.body))
+        raise RequestError.new("Airbyte Request error", result.status, json_body)
       end
     end
   end
