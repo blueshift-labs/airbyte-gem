@@ -38,14 +38,14 @@ puts snowflake_source_def_id
 source_connection_config = {
   credentials: {
     auth_type: "username/password",
-    username: "sf_test_user1",
+    username: "", #TODO: fill correct username
     password: "***" #TODO: fill correct password
 },
 warehouse: "COMPUTE_WH",
 database: "DEMO1",
 schema: "PUBLIC",
 role: "SF_TEST1",
-host: "qw03296.ap-south-1.snowflakecomputing.com"
+host: "" #TODO: use correct host
 }
 # resp = Airbyte.source.validate_config(snowflake_source_def_id, source_connection_config)
 # if resp['status'] != 'succeeded'
@@ -77,9 +77,9 @@ s3_destination_def_id = "4816b78f-1489-44c1-9060-4b19d5fa9362"#Airbyte.destinati
 # byebug
 destination_connection_config = {
   secret_access_key: "", #TODO: fill correct key
-  s3_bucket_region: "us-west-2", #TODO: fill correct region
-  s3_bucket_path: "abc.com/customers",
-  s3_bucket_name: "bsft-customers-sandbox2",
+  s3_bucket_region: "", #TODO: fill correct region
+  s3_bucket_path: "", #TODO: fill correct path
+  s3_bucket_name: "", #TODO: fill correct bucket name
   access_key_id: "", #TODO: fill correct key
   s3_endpoint: "",
   format: {
