@@ -52,7 +52,6 @@ module Airbyte
         builder.use Faraday::Adapter::Typhoeus
       end
       connection.path_prefix = ""
-      puts connection
       connection
     end
   end
