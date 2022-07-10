@@ -6,7 +6,7 @@ require "airbyte/base_client"
 require "airbyte/resources/workspace"
 require "airbyte/resources/source_definition"
 require "airbyte/resources/destination_definition"
-
+require "airbyte/resources/jobs"
 require "airbyte/resources/scheduler"
 require "airbyte/resources/source"
 require "airbyte/resources/destination"
