@@ -19,7 +19,7 @@ module Airbyte
       resp = get(job_id)
       result = {}
       status = "in_progress"
-      result["error_info"] = {}
+      result["error_details"] = {}
       job = resp["job"]
       attempts = resp["attempts"]
       total_records = nil
@@ -48,14 +48,14 @@ module Airbyte
         status = "failed"
         # fetch only first failure detail
         failure_details = failed_attempt["failureSummary"]["failures"][0]
-        error_info = {}
-        error_info['origin'] = failure_details['failureOrigin']
-        error_info['type'] = failure_details['failureType']
-        error_info['external_message'] = failure_details['externalMessage']
-        error_info['internal_message'] = failure_details['internalMessage']
-        error_info['timestamp'] = failure_details['timestamp']
-        error_info['partial_success'] = failure_details['partialSuccess']
-        result['error_info'] = error_info
+        error_details = {}
+        error_details['origin'] = failure_details['failureOrigin']
+        error_details['type'] = failure_details['failureType']
+        error_details['external_message'] = failure_details['externalMessage']
+        error_details['internal_message'] = failure_details['internalMessage']
+        error_details['timestamp'] = failure_details['timestamp']
+        error_details['partial_success'] = failure_details['partialSuccess']
+        result['error_details'] = error_details
       end
       result['total_records'] = total_records
       result['successful_records'] = successful_records
