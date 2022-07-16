@@ -18,21 +18,50 @@ module Airbyte
     def get_job_state(job_id)
       resp = get(job_id)
       result = {}
-      result["status"] = "in_progress"
+      status = "in_progress"
       result["error_info"] = {}
-      result["job_stats"] = {}
       job = resp["job"]
       attempts = resp["attempts"]
+      total_records = nil
+      successful_records = nil
+      bytes_synced = nil
+      failed_records = nil
+
       if STATUSES_SUCCESS.include? job["status"]
-        success_attempt = attempts.find{|i| i["attempt"]["status"] == "succeeded"}
-        stats = success_attempt['attempt']["totalStats"]
-        result["job_stats"] = stats
-        result["status"] = "succeeded"
+        success_attempt = attempts.find{|i| i["attempt"]["status"] == "succeeded"}['attempt']
+        
+        stats = success_attempt["totalStats"]
+        total_records = stats.fetch('recordsEmitted', nil)
+        successful_records = success_attempt.fetch('recordsSynced', nil)
+        bytes_synced = success_attempt.fetch('bytesSynced', nil)
+        failed_records = 0
+        status = "succeeded"
       elsif STATUSES_FAILED.include? job["status"]
-        result["status"] = "failed"
-        failed_attempt = attempts.find{|i| i["attempt"]["status"] == "failed"}
-        result["error_info"] = failed_attempt['attempt']["failureSummary"]
+        failed_attempt = attempts.find{|i| i["attempt"]["status"] == "failed"}['attempt']
+        stats = failed_attempt["totalStats"]
+        total_records = stats.fetch('recordsEmitted', nil)
+        successful_records = failed_attempt.fetch('recordsSynced', nil)
+        bytes_synced = failed_attempt.fetch('bytesSynced', nil)
+        unless total_records.nil? && successful_records.nil?
+          failed_records = total_records - successful_records
+        end
+        status = "failed"
+        # fetch only first failure detail
+        failure_details = failed_attempt["failureSummary"]["failures"][0]
+        error_info = {}
+        error_info['origin'] = failure_details['failureOrigin']
+        error_info['type'] = failure_details['failureType']
+        error_info['external_message'] = failure_details['externalMessage']
+        error_info['internal_message'] = failure_details['internalMessage']
+        error_info['timestamp'] = failure_details['timestamp']
+        error_info['partial_success'] = failure_details['partialSuccess']
+        result['error_info'] = error_info
       end
+      result['total_records'] = total_records
+      result['successful_records'] = successful_records
+      result['bytes_synced'] = bytes_synced
+      result['failed_records'] = failed_records
+      result["status"] = status
       result
     end
 
