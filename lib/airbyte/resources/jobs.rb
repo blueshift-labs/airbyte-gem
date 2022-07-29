@@ -7,6 +7,19 @@ module Airbyte
     STATUSES_SUCCESS = [STATUSES[:succeeded]]
     STATUSES_FAILED = [STATUSES[:incomplete], STATUSES[:failed], STATUSES[:cancelled]]
 
+    ERROR_KEY_ORIGIN = 'origin'
+    ERROR_KEY_TYPE = 'type'
+    ERROR_KEY_EXTERNAL_MSG = 'external_message'
+    ERROR_KEY_INTERNAL_MSG = 'internal_message'
+    ERROR_KEY_TIMESTAMP = 'timestamp'
+    ERROR_KEY_PARTIAL_SUCCESS = 'partial_success'
+    
+    DEFAULT_EXTERNAL_MSG = "Sync Job Execution Failed"
+    DEFAULT_INTERNAL_MSG = "Please verify credentials and privileges of source, destination and connection"
+    DEFAULT_ORIGIN = 'source'
+    DEFAULT_TYPE = 'internal_error'
+    DEFAULT_PARTIAL_SUCCESS = 'false'
+
     JOB_TYPE_SYNC = "sync"
     def get(job_id)
       params = {
@@ -46,15 +59,25 @@ module Airbyte
           failed_records = total_records - successful_records
         end
         status = "failed"
-        # fetch only first failure detail
-        failure_details = failed_attempt["failureSummary"]["failures"][0]
-        error_details = {}
-        error_details['origin'] = failure_details['failureOrigin']
-        error_details['type'] = failure_details['failureType']
-        error_details['external_message'] = failure_details['externalMessage']
-        error_details['internal_message'] = failure_details['internalMessage']
-        error_details['timestamp'] = failure_details['timestamp']
-        error_details['partial_success'] = failure_details['partialSuccess']
+
+        error_details = {
+          ERROR_KEY_ORIGIN => DEFAULT_ORIGIN,
+          ERROR_KEY_TYPE => DEFAULT_TYPE,
+          ERROR_KEY_EXTERNAL_MSG => DEFAULT_EXTERNAL_MSG,
+          ERROR_KEY_INTERNAL_MSG => DEFAULT_INTERNAL_MSG,
+          ERROR_KEY_TIMESTAMP => DateTime.now.strftime('%Q'),
+          ERROR_KEY_PARTIAL_SUCCESS => DEFAULT_PARTIAL_SUCCESS
+        }
+        unless failed_attempt['failureSummary'].nil? || failed_attempt['failureSummary'].empty?
+          # fetch only first failure detail
+          failure_details = failed_attempt['failureSummary']['failures'][0]
+          error_details[ERROR_KEY_ORIGIN] = failure_details['failureOrigin']
+          error_details[ERROR_KEY_TYPE] = failure_details['failureType']
+          error_details[ERROR_KEY_EXTERNAL_MSG] = failure_details['externalMessage']
+          error_details[ERROR_KEY_INTERNAL_MSG] = failure_details['internalMessage']
+          error_details[ERROR_KEY_TIMESTAMP] = failure_details['timestamp']
+          error_details[ERROR_KEY_PARTIAL_SUCCESS] = failed_attempt['failureSummary']['partialSuccess']
+        end
         result['error_details'] = error_details
       end
       result['total_records'] = total_records
