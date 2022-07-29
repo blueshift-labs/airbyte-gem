@@ -76,7 +76,7 @@ module Airbyte
           error_details[ERROR_KEY_EXTERNAL_MSG] = failure_details['externalMessage']
           error_details[ERROR_KEY_INTERNAL_MSG] = failure_details['internalMessage']
           error_details[ERROR_KEY_TIMESTAMP] = failure_details['timestamp']
-          error_details[ERROR_KEY_PARTIAL_SUCCESS] = failure_details['partialSuccess']
+          error_details[ERROR_KEY_PARTIAL_SUCCESS] = failed_attempt['failureSummary']['partialSuccess']
         end
         result['error_details'] = error_details
       end
