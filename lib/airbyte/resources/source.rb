@@ -12,7 +12,7 @@ module Airbyte
 
     def discover_schema(source_id, disable_cache = true)
       params = {
-        sourceId: source_id
+        sourceId: source_id,
         disable_cache: disable_cache
       }
       handle_request("/api/v1/sources/discover_schema", body: params)
