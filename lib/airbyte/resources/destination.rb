@@ -9,6 +9,13 @@ module Airbyte
       handle_request("/api/v1/destinations/update", body: params)
     end
 
+    def delete(destination_id)
+      params = {
+        destinationId: destination_id
+      }
+      handle_request("/api/v1/destinations/delete", body: params)
+    end
+    
     def get_definition_id(source_name)
       Airbyte.destination_definition.get_id(source_name)
     end
