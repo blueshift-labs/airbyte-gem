@@ -10,6 +10,13 @@ module Airbyte
       handle_request("/api/v1/sources/update", body: params)
     end
 
+    def delete(source_id)
+      params = {
+        sourceId: source_id
+      }
+      handle_request("/api/v1/sources/delete", body: params)
+    end
+
     def discover_schema(source_id, disable_cache = true)
       params = {
         sourceId: source_id,
