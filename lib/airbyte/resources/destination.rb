@@ -20,8 +20,8 @@ module Airbyte
       Airbyte.destination_definition.get_id(source_name)
     end
 
-    def validate_config(definition_id, connection_config)
-      Airbyte.scheduler.validate_destination_config(definition_id, connection_config)
+    def validate_config(definition_id, workspace_id, connection_config)
+      Airbyte.scheduler.validate_destination_config(definition_id, workspace_id, connection_config)
     end
   end 
 end
