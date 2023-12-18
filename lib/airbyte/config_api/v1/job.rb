@@ -1,7 +1,7 @@
 
 module Airbyte
-  def self.jobs; Jobs.new; end
-  class Jobs < BaseClient
+  def self.job; Job.new; end
+  class Job < ConfigAPIClient
     STATUSES = {pending: 'pending', running: 'running', incomplete: 'incomplete', failed: 'failed', succeeded: 'succeeded', cancelled: 'cancelled'}
     STATUSES_PROCESSING = [STATUSES[:pending], STATUSES[:running]]
     STATUSES_SUCCESS = [STATUSES[:succeeded]]
@@ -25,7 +25,7 @@ module Airbyte
       params = {
         id: job_id
       }
-      handle_request("/api/v1/jobs/get", body: params)
+      handle_request("jobs/get", body: params)
     end
 
     def get_job_state(job_id)
@@ -39,14 +39,13 @@ module Airbyte
       successful_records = nil
       bytes_synced = nil
       failed_records = nil
-
       if STATUSES_SUCCESS.include? job["status"]
         success_attempt = attempts.find{|i| i["attempt"]["status"] == "succeeded"}['attempt']
         
         stats = success_attempt["totalStats"]
         total_records = stats.fetch('recordsEmitted', nil)
-        successful_records = success_attempt.fetch('recordsSynced', nil)
-        bytes_synced = success_attempt.fetch('bytesSynced', nil)
+        successful_records = stats.fetch('recordsCommitted', nil)
+        bytes_synced = stats.fetch('bytesEmitted', nil)
         failed_records = 0
         status = "succeeded"
       elsif STATUSES_FAILED.include? job["status"]
@@ -103,14 +102,14 @@ module Airbyte
         }
       end
 
-      handle_request("/api/v1/jobs/list", body: params)
+      handle_request("jobs/list", body: params)
     end
 
     def get_debug_info(job_id)
       params = {
         id: job_id
       }
-      handle_request("/api/v1/jobs/get_debug_info", body: params)
+      handle_request("jobs/get_debug_info", body: params)
     end
   end 
 end

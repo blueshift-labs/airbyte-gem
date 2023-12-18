@@ -1,9 +1,9 @@
 
 module Airbyte
   def self.source_definition; SourceDefinition.new; end
-  class SourceDefinition < BaseClient
+  class SourceDefinition < ConfigAPIClient
     def list()
-      handle_request("/api/v1/source_definitions/list")
+      handle_request("source_definitions/list")
     end
 
     def get_id(source_name)

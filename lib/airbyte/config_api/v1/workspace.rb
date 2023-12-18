@@ -1,9 +1,9 @@
 
 module Airbyte
   def self.workspace; Workspace.new; end
-  class Workspace < BaseClient
+  class Workspace < ConfigAPIClient
     def list
-      handle_request("/api/v1/workspaces/list")
+      handle_request("workspaces/list")
     end
 
     def create(email, name)
@@ -14,14 +14,14 @@ module Airbyte
           news: false,
           securityUpdates: false,
       }
-      handle_request("/api/v1/workspaces/create", body: params)
+      handle_request("workspaces/create", body: params)
     end
 
     def delete(workspace_id)
       params = {
         "workspaceId": workspace_id
       }
-      handle_request("/api/v1/workspaces/delete", body: params)
+      handle_request("workspaces/delete", body: params)
     end
   end 
 end
