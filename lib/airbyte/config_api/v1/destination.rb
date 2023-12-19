@@ -3,18 +3,18 @@ module Airbyte
     class Destination < ConfigAPIClient
 
       def create(params)
-        handle_request("destinations/create", body: params)
+        handle_request("#{PATH_PREFIX_DESTINATIONS}/create", body: params)
       end
 
       def update(params)
-        handle_request("destinations/update", body: params)
+        handle_request("#{PATH_PREFIX_DESTINATIONS}/update", body: params)
       end
 
       def delete(destination_id)
         params = {
           destinationId: destination_id
         }
-        handle_request("destinations/delete", body: params)
+        handle_request("#{PATH_PREFIX_DESTINATIONS}/delete", body: params)
       end
       
       def get_definition_id(source_name)

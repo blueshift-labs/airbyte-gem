@@ -5,9 +5,7 @@ require_relative "airbyte/version"
 require "faraday"
 require 'ostruct'
 require 'typhoeus'
-# require 'typhoeus/adapters/faraday'
 require 'connection_pool'
-
 module Airbyte
   class Error < StandardError; end  
 
@@ -38,10 +36,9 @@ module Airbyte
         if @configuration.log_faraday_responses
           builder.use Faraday::Response::Logger, @configuration.logger || :logger
         end
-        builder.adapter Faraday::Adapter::Typhoeus
+        builder.adapter :typhoeus
         builder.request :basic_auth, @configuration.user_name, @configuration.password
       end
-      connection.path_prefix = "/api/v1/"
       connection
     end
     @connection_airbyte_api = ConnectionPool::Wrapper.new(size: @configuration.pool || 32, timeout: @configuration.timeout || 10) do
@@ -49,10 +46,9 @@ module Airbyte
       if @configuration.log_faraday_responses
         builder.use Faraday::Response::Logger, @configuration.logger || :logger
       end
-      builder.adapter Faraday::Adapter::Typhoeus
+      builder.adapter :typhoeus
       builder.request :basic_auth, @configuration.user_name, @configuration.password
       end
-      connection.path_prefix = "/v1/"
       connection
     end
 
@@ -70,6 +66,7 @@ module Airbyte
 
     # Airbyte Config APIs V1
     require "airbyte/config_api/config_api_client"
+    require "airbyte/config_api/v1/constants"
     require "airbyte/config_api/v1/source_definition"
     require "airbyte/config_api/v1/destination_definition"
     require "airbyte/config_api/v1/job"

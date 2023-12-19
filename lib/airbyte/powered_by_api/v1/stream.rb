@@ -10,7 +10,7 @@ module Airbyte
           destinationId: destination_id,
           ignoreCache: ignore_cache
         }
-        handle_request("#{RESOURCE_PATH_STREAMS}", http_verb: :get, params: params)
+        handle_request("#{PATH_PREFIX_STREAMS}", http_verb: :get, params: params)
       end
     end    
   end

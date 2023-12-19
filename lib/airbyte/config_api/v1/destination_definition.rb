@@ -4,7 +4,7 @@ module Airbyte
   def self.destination_definition; DestinationDefinition.new; end
   class DestinationDefinition < ConfigAPIClient
     def list()
-      handle_request("destination_definitions/list")
+      handle_request("#{PATH_PREFIX_DESTINATION_DEFINITIONS}/list")
     end
     
     def get_id(destination_name)

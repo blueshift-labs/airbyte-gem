@@ -7,7 +7,7 @@ module Airbyte
         workspaceId: workspace_id,
         connectionConfiguration: connection_config
       }
-      handle_request("scheduler/sources/check_connection", body: source_config)
+      handle_request("#{PATH_PREFIX_SCHEDULER_SOURCE}/check_connection", body: source_config)
     end
     def validate_destination_config(destination_definition_id, workspace_id, connection_config)
       destination_config = {
@@ -15,7 +15,7 @@ module Airbyte
         workspaceId: workspace_id,
         connectionConfiguration: connection_config
       }
-      handle_request("scheduler/destinations/check_connection", body: destination_config)
+      handle_request("#{PATH_PREFIX_SCHEDULER_DESTINATION}/check_connection", body: destination_config)
     end
   end 
 end

@@ -42,23 +42,23 @@ module Airbyte
 
     def create(params)    
       connection_params = build_payload(params)
-      handle_request("web_backend/connections/create", body: connection_params)
+      handle_request("#{PATH_PREFIX_CONNECTIONS}/create", body: connection_params)
     end
 
     def update(params)    
       connection_params = build_payload(params)
       connection_params[:connectionId] = params[:connection_id]
-      handle_request("web_backend/connections/update", body: connection_params)
+      handle_request("#{PATH_PREFIX_CONNECTIONS}/update", body: connection_params)
     end
 
     def trigger_sync(connection_id)    
       params = {connectionId: connection_id}
-      handle_request("connections/sync", body: params)
+      handle_request("#{PATH_PREFIX_CONNECTIONS}/sync", body: params)
     end
 
     def delete(connection_id)    
       params = {connectionId: connection_id}
-      handle_request("connections/delete", body: params)
+      handle_request("#{PATH_PREFIX_CONNECTIONS}/delete", body: params)
     end
   end 
 end

@@ -25,7 +25,7 @@ module Airbyte
       params = {
         id: job_id
       }
-      handle_request("jobs/get", body: params)
+      handle_request("#{PATH_PREFIX_JOBS}/get", body: params)
     end
 
     def get_job_state(job_id)
@@ -102,14 +102,14 @@ module Airbyte
         }
       end
 
-      handle_request("jobs/list", body: params)
+      handle_request("#{PATH_PREFIX_JOBS}/list", body: params)
     end
 
     def get_debug_info(job_id)
       params = {
         id: job_id
       }
-      handle_request("jobs/get_debug_info", body: params)
+      handle_request("#{PATH_PREFIX_JOBS}/get_debug_info", body: params)
     end
   end 
 end
