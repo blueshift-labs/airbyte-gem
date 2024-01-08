@@ -24,12 +24,9 @@ module Airbyte
       def update(params)
         body = {
           name: params[:name],
-          definitionId: params[:source_definition_id],
-          workspaceId: params[:workspace_id],
-          sourceId: params[:source_id],
           configuration: params[:configuration]
         }
-        handle_request("#{PATH_PREFIX_SOURCES}/#{source_id}", http_verb: :put, body: body)
+        handle_request("#{PATH_PREFIX_SOURCES}/#{params[:source_id]}", http_verb: :put, body: body)
       end
 
       def delete(source_id)

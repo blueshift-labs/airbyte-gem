@@ -15,12 +15,9 @@ module Airbyte
       def update(params)
         body = {
           name: params[:name],
-          definitionId: params[:destination_definition_id],
-          workspaceId: params[:workspace_id],
-          destinationId: params[:destination_id],
           configuration: params[:configuration]
         }
-        handle_request("#{PATH_PREFIX_DESTINATIONS}/#{destination_id}", http_verb: :put, body: params)
+        handle_request("#{PATH_PREFIX_DESTINATIONS}/#{params[:destination_id]}", http_verb: :put, body: params)
       end
 
       def delete(destination_id)
