@@ -36,19 +36,19 @@ module Airbyte
         if @configuration.log_faraday_responses
           builder.use Faraday::Response::Logger, @configuration.logger || :logger
         end
-        builder.request :basic_auth, @configuration.user_name, @configuration.password
+        builder.basic_auth(@configuration.user_name, @configuration.password)
         builder.adapter :typhoeus
       end
       connection
     end
     @connection_airbyte_api = ConnectionPool::Wrapper.new(size: @configuration.pool || 32, timeout: @configuration.timeout || 10) do
       connection = Faraday.new(:url => @configuration.host + ":#{@configuration.port_airbyte_api|| 80}") do |builder|
-      if @configuration.log_faraday_responses
-        builder.use Faraday::Response::Logger, @configuration.logger || :logger
+        if @configuration.log_faraday_responses
+          builder.use Faraday::Response::Logger, @configuration.logger || :logger
+        end
+        builder.basic_auth(@configuration.user_name, @configuration.password)
+        builder.adapter :typhoeus
       end
-      builder.request :basic_auth, @configuration.user_name, @configuration.password
-      builder.adapter :typhoeus
-    end
       connection
     end
 
