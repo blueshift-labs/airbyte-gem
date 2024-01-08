@@ -36,8 +36,8 @@ module Airbyte
         if @configuration.log_faraday_responses
           builder.use Faraday::Response::Logger, @configuration.logger || :logger
         end
-        builder.adapter :typhoeus
         builder.request :basic_auth, @configuration.user_name, @configuration.password
+        builder.adapter :typhoeus
       end
       connection
     end
@@ -46,9 +46,9 @@ module Airbyte
       if @configuration.log_faraday_responses
         builder.use Faraday::Response::Logger, @configuration.logger || :logger
       end
-      builder.adapter :typhoeus
       builder.request :basic_auth, @configuration.user_name, @configuration.password
-      end
+      builder.adapter :typhoeus
+    end
       connection
     end
 
