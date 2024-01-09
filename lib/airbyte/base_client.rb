@@ -32,7 +32,7 @@ module Airbyte
     def handle_result(result)
       content_type = result.headers['Content-Type']
       if content_type != 'application/json' && !(200..204).cover?(result.status)
-        raise RequestError.new("Airbyte Request error", result.status, result.body)
+        raise RequestError.new("Airbyte Request error", result.status, handle_non_utf_chars(result.body))
       end
       json_body = JSON.load(result.body)
       if [200, 204].include?(result.status)
@@ -50,6 +50,9 @@ module Airbyte
         #$statsd.count("airbyte_client.error.request", 1)
         raise RequestError.new("Airbyte Request error", result.status, json_body)
       end
+    end
+    def handle_non_utf_chars(str)
+      str.b.force_encoding('UTF-8').encode('UTF-8', invalid: :replace, undef: :replace, replace: '')
     end
   end
 end
