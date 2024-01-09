@@ -30,6 +30,10 @@ module Airbyte
     end
 
     def handle_result(result)
+      content_type = result.headers['Content-Type']
+      if content_type != 'application/json' && !(200..204).cover?(result.status)
+        raise RequestError.new("Airbyte Request error", result.status, result.body)
+      end
       json_body = JSON.load(result.body)
       if [200, 204].include?(result.status)
         json_body
