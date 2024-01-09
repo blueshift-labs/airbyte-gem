@@ -52,7 +52,7 @@ module Airbyte
       end
     end
     def handle_non_utf_chars(str)
-      str.b.force_encoding('UTF-8').encode('UTF-8', invalid: :replace, undef: :replace, replace: '')
+      str.encode('UTF-8', invalid: :replace, undef: :replace, replace: '')
     end
   end
 end
