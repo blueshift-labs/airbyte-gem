@@ -6,7 +6,7 @@ module Airbyte
       def create(params)
         body = {
           name: params[:name],
-          definitionId: params[:source_definition_id],
+          definitionId: params[:definition_id],
           workspaceId: params[:workspace_id],
           configuration: params[:configuration]
         }

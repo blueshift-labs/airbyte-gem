@@ -5,11 +5,11 @@ module Airbyte
       def create(params)
         body = {
           name: params[:name],
-          definitionId: params[:source_definition_id],
+          definitionId: params[:definition_id],
           workspaceId: params[:workspace_id],
           configuration: params[:configuration]
         }
-        handle_request(PATH_PREFIX_DESTINATIONS, body: params)
+        handle_request(PATH_PREFIX_DESTINATIONS, body: body)
       end
 
       def update(params)
@@ -17,7 +17,7 @@ module Airbyte
           name: params[:name],
           configuration: params[:configuration]
         }
-        handle_request("#{PATH_PREFIX_DESTINATIONS}/#{params[:destination_id]}", http_verb: :put, body: params)
+        handle_request("#{PATH_PREFIX_DESTINATIONS}/#{params[:destination_id]}", http_verb: :put, body: body)
       end
 
       def delete(destination_id)
