@@ -29,26 +29,34 @@ module Airbyte
       end
     end
 
+    # Override me in subclass to get message from specific result structure.
+    def get_error_message(json_result)
+      return "Airbyte Request Error"
+    end
+
     def handle_result(result)
       content_type = result.headers['Content-Type']
-      if content_type != 'application/json' && !(200..204).cover?(result.status)
-        raise RequestError.new("Airbyte Request error", result.status, handle_non_utf_chars(result.body))
+      unless ['application/json', 'application/problem+json'].include?(content_type) || (200..204).cover?(result.status)
+        raise RequestError.new("Airbyte Request Error", result.status, handle_non_utf_chars(result.body))
       end
       json_body = JSON.load(result.body)
       if [200, 204].include?(result.status)
-        json_body
-      elsif result.status == STATUS_NOT_ALLOWED
+        return json_body
+      end
+      
+      case result.status
+      when STATUS_NOT_ALLOWED
         #$statsd.count("airbyte_client.error.authorization", 1)
-        raise AuthorizationError.new(json_body["message"], result.status, json_body)
-      elsif result.status == STATUS_NOT_FOUND
+        raise AuthorizationError.new(get_error_message(json_body), result.status, json_body)
+      when STATUS_NOT_FOUND
         #$statsd.count("airbyte_client.error.object_not_found", 1)
-        raise ObjectNotFoundError.new(json_body["message"], result.status, json_body)
-      elsif result.status == STATUS_INPUT_VALIDATION_FAILED
+        raise ObjectNotFoundError.new(get_error_message(json_body), result.status, json_body)
+      when STATUS_INPUT_VALIDATION_FAILED
         #$statsd.count("airbyte_client.error.input_validation", 1)
-        raise InputValidationError.new(json_body["message"], result.status, json_body)
+        raise InputValidationError.new(get_error_message(json_body), result.status, json_body)
       else
         #$statsd.count("airbyte_client.error.request", 1)
-        raise RequestError.new("Airbyte Request error", result.status, json_body)
+        raise RequestError.new(get_error_message(json_body), result.status, json_body)
       end
     end
     def handle_non_utf_chars(str)
