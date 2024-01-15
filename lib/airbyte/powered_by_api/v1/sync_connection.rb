@@ -13,7 +13,7 @@ module Airbyte
             stream_name: stream_config[:name],
           }
         unless stream
-          raise ObjectNotFoundError.new("Stream #{stream_config[:name]} Not Found in Source", STATUS_NOT_FOUND, JSON.load(error_body))
+          raise ObjectNotFoundError.new("Stream #{stream_config[:name]} Not Found in Source", STATUS_CODE_NOT_FOUND, JSON.load(error_body))
         end
         stream_params = {}
         stream_params[:name] = stream["streamName"]
@@ -22,7 +22,7 @@ module Airbyte
           is_cursor_field_present = stream["propertyFields"].any? { |arr| arr.include?(stream_config[:cursor_field]) }
           unless is_cursor_field_present
             error_body[:cursor_field] = stream_config[:cursor_field]
-            raise ObjectNotFoundError.new("Cursor Field #{stream_config[:cursor_field]} Not Found in stream #{stream_config[:name]} of Source", STATUS_NOT_FOUND, JSON.load(error_body))
+            raise ObjectNotFoundError.new("Cursor Field #{stream_config[:cursor_field]} Not Found in stream #{stream_config[:name]} of Source", STATUS_CODE_NOT_FOUND, JSON.load(error_body))
           end
           stream_params[:cursorField] = [stream_config[:cursor_field]]
         end

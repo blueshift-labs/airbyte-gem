@@ -45,13 +45,13 @@ module Airbyte
       end
       
       case result.status
-      when STATUS_NOT_ALLOWED
+      when STATUS_CODE_NOT_ALLOWED
         #$statsd.count("airbyte_client.error.authorization", 1)
         raise AuthorizationError.new(get_error_message(json_body), result.status, json_body)
-      when STATUS_NOT_FOUND
+      when STATUS_CODE_NOT_FOUND
         #$statsd.count("airbyte_client.error.object_not_found", 1)
         raise ObjectNotFoundError.new(get_error_message(json_body), result.status, json_body)
-      when STATUS_INPUT_VALIDATION_FAILED
+      when STATUS_CODE_INPUT_VALIDATION_FAILED
         #$statsd.count("airbyte_client.error.input_validation", 1)
         raise InputValidationError.new(get_error_message(json_body), result.status, json_body)
       else

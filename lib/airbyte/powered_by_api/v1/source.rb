@@ -10,7 +10,11 @@ module Airbyte
           workspaceId: params[:workspace_id],
           configuration: params[:configuration]
         }
-        handle_request(PATH_PREFIX_SOURCES, http_verb: :post, body: body)
+        resp = handle_request(PATH_PREFIX_SOURCES, http_verb: :post, body: body)
+        unless resp.has_key?("sourceId")
+          raise BadRequestError.new("Couldn't create Source", STATUS_CODE_BAD_REQUEST, resp)
+        end 
+        resp
       end
 
       def list(params)
@@ -26,7 +30,11 @@ module Airbyte
           name: params[:name],
           configuration: params[:configuration]
         }
-        handle_request("#{PATH_PREFIX_SOURCES}/#{params[:source_id]}", http_verb: :put, body: body)
+        resp = handle_request("#{PATH_PREFIX_SOURCES}/#{params[:source_id]}", http_verb: :put, body: body)
+        unless resp.has_key?("sourceId")
+          raise BadRequestError.new("Couldn't update Source", STATUS_CODE_BAD_REQUEST, resp)
+        end
+        resp
       end
 
       def delete(source_id)
@@ -38,19 +46,38 @@ module Airbyte
       end
 
       def get_definition_id(source_name)
-        Airbyte.source_definition.get_id(source_name)
+        resp = Airbyte.source_definition.get_id(source_name)
+        unless resp
+          raise ObjectNotFoundError.new("Couldn't Find Source Definition: #{source_name}", STATUS_CODE_NOT_FOUND, resp)
+        end
+        resp
       end
 
       def add_custom_definition_for_workspace(workspace_id, definition_info)
-        Airbyte.source_definition.add_custom_definition_for_workspace(workspace_id, definition_info)
+        resp = Airbyte.source_definition.add_custom_definition_for_workspace(workspace_id, definition_info)
+        unless resp["sourceDefinitionId"]
+          raise BadRequestError.new("Couldn't add custom Source definition", STATUS_CODE_BAD_REQUEST, resp)
+        end
+        resp
       end
 
       def get_definition_for_workspace(source_name, workspace_id)
-        Airbyte.source_definition.get_id_for_workspace(source_name, workspace_id)
+        resp = Airbyte.source_definition.get_id_for_workspace(source_name, workspace_id)
+        unless resp
+          raise ObjectNotFoundError.new("Couldn't Find Source Definition: #{source_name}, for workspace: #{workspace_id}", STATUS_CODE_NOT_FOUND, resp)
+        end
+        resp
       end
 
       def validate_config(definition_id, workspace_id, connection_config)
-        Airbyte.scheduler.validate_source_config(definition_id, workspace_id, connection_config)
+        resp = Airbyte.scheduler.validate_source_config(definition_id, workspace_id, connection_config)
+        unless resp['jobInfo']['succeeded']
+          raise AuthorizationError.new(resp["jobInfo"]["failureReason"]["externalMessage"], STATUS_CODE_NOT_ALLOWED, resp["jobInfo"])
+        end
+        unless resp["status"] == "succeeded"
+          raise BadRequestError.new(resp["message"], STATUS_CODE_BAD_REQUEST, resp["jobInfo"])
+        end
+        resp
       end
     end    
   end
