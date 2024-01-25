@@ -21,7 +21,7 @@ module Airbyte
           name: params[:name],
           configuration: params[:configuration]
         }
-        resp = handle_request("#{PATH_PREFIX_DESTINATIONS}/#{params[:destination_id]}", http_verb: :put, body: body)
+        resp = handle_request("#{PATH_PREFIX_DESTINATIONS}/#{params[:destination_id]}", http_verb: :patch, body: body)
         unless resp.has_key?("destinationId")
           raise BadRequestError.new("Couldn't update Destination", STATUS_CODE_BAD_REQUEST, resp)
         end

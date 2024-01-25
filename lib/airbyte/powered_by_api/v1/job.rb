@@ -24,8 +24,13 @@ module Airbyte
           jobType: "sync",
           connectionId: connection_id
         }
-        handle_request(PATH_PREFIX_JOBS, body: params)
+        resp = handle_request(PATH_PREFIX_JOBS, body: params)
+        unless resp["jobId"]
+          raise BadRequestError.new("Couldn't Trigger Airbyte Sync", STATUS_CODE_BAD_REQUEST, resp)
+        end
+        resp
       end
+
       def trigger_reset(connection_id)    
         params = {
           jobType: "reset",

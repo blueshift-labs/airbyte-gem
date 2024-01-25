@@ -30,7 +30,7 @@ module Airbyte
           name: params[:name],
           configuration: params[:configuration]
         }
-        resp = handle_request("#{PATH_PREFIX_SOURCES}/#{params[:source_id]}", http_verb: :put, body: body)
+        resp = handle_request("#{PATH_PREFIX_SOURCES}/#{params[:source_id]}", http_verb: :patch, body: body)
         unless resp.has_key?("sourceId")
           raise BadRequestError.new("Couldn't update Source", STATUS_CODE_BAD_REQUEST, resp)
         end

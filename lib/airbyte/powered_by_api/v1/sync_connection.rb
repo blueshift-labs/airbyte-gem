@@ -53,12 +53,20 @@ module Airbyte
 
       def create(params)
         body = build_connection_params(params)
-        handle_request(PATH_PREFIX_CONNECTIONS, http_verb: :post, body: body)
+        resp = handle_request(PATH_PREFIX_CONNECTIONS, http_verb: :post, body: body)
+        unless resp["connectionId"]
+          raise BadRequestError.new("Couldn't Create Airbyte Connection", STATUS_CODE_BAD_REQUEST, resp)
+        end
+        resp
       end
 
       def update(params)
         body = build_connection_params(params)
-        handle_request("#{PATH_PREFIX_CONNECTIONS}/#{params[:connection_id]}", http_verb: :patch, body: body)
+        resp = handle_request("#{PATH_PREFIX_CONNECTIONS}/#{params[:connection_id]}", http_verb: :patch, body: body)
+        unless resp["connectionId"]
+          raise BadRequestError.new("Couldn't Update Airbyte Connection", STATUS_CODE_BAD_REQUEST, resp)
+        end
+        resp
       end
 
       def delete(connection_id)    
