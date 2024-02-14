@@ -7,7 +7,9 @@ describe 'Airbyte Powered By API' do
   current_datetime = "-Rspec:#{Time.now.strftime("%d-%m-%Y %H:%M")} "
   workspace_id = nil 
   source_id = nil 
+  source_connection_config = nil
   destination_id = nil 
+  destination_connection_config = nil
   connection_id = nil 
   job_id = nil
   stream_name = "customers"  # Table names are Case Insensitive in Databricks.
@@ -31,9 +33,9 @@ describe 'Airbyte Powered By API' do
   it '2. Add databricks source definition to workspace' do
     definition_info = {
       scope_type: "workspace",
-      source_name: "Databricks V0",
-      docker_repository: "airbyte/source-databricks",
-      docker_image_tag: "dev",
+      source_name: "Databricks V1",
+      docker_repository: "<aws_account_id>.dkr.ecr.<region>.amazonaws.com/airbyte/source-databricks",
+      docker_image_tag: "v1",
       documentation_url: ""
     }
     resp = Airbyte::V1.source.add_custom_definition_for_workspace(workspace_id, definition_info)
@@ -43,7 +45,7 @@ describe 'Airbyte Powered By API' do
 
   it '3. creates a source' do
     # Get List of Source Definitions
-    source_name = "Databricks V0"
+    source_name = "Databricks V1"
     databricks_source_def_id = Airbyte::V1.source.get_definition_for_workspace(source_name, workspace_id)
     expect(databricks_source_def_id).not_to be_nil
     # Get the source definition specification 
@@ -57,7 +59,7 @@ describe 'Airbyte Powered By API' do
       databricks_server_hostname: "dbc-****-**.cloud.databricks.com",
       databricks_personal_access_token: "******"
     }
-    
+
     resp = Airbyte::V1.source.validate_config(databricks_source_def_id, workspace_id, source_connection_config)
     expect(resp).not_to be_nil
     if resp['status'] != 'succeeded'
@@ -68,7 +70,7 @@ describe 'Airbyte Powered By API' do
     # Create Source
     source_params = {
         name: "databricks Powered By API - #{current_datetime} ",
-        source_definition_id: databricks_source_def_id,
+        definition_id: databricks_source_def_id,
         workspace_id: workspace_id,
         configuration: source_connection_config
     }
@@ -78,6 +80,19 @@ describe 'Airbyte Powered By API' do
     }.not_to raise_error
     expect(resp['sourceId']).not_to be_nil
     source_id = resp['sourceId']
+  end
+
+  it '3.1 updates source' do
+    # update source
+    source_params = {
+        source_id: source_id,
+        configuration: source_connection_config
+    }
+    resp = {}
+    expect{
+      resp = Airbyte::V1.source.update(source_params)
+    }.not_to raise_error
+    expect(resp['sourceId']).not_to be_nil
   end
 
   it '4. creates a destination' do
@@ -117,8 +132,8 @@ describe 'Airbyte Powered By API' do
 
     destination_params = {
       name: "S3_powered_by_API_#{current_datetime}",
-      workspaceId: workspace_id,
-      destinationDefinitionId: s3_destination_def_id,
+      workspace_id: workspace_id,
+      definition_Id: s3_destination_def_id,
       configuration: destination_connection_config
     }
     resp = Airbyte::V1.destination.create(destination_params)
@@ -126,6 +141,17 @@ describe 'Airbyte Powered By API' do
     expect(resp['destinationId']).not_to be_nil
 
     destination_id = resp['destinationId']
+  end
+
+  it '4.1 updates destination' do
+    # update destination
+    destination_params = {
+      destination_id: destination_id,
+      configuration: destination_connection_config
+    }
+    resp = Airbyte::V1.destination.update(destination_params)
+    expect(resp).not_to be_nil
+    expect(resp['destinationId']).not_to be_nil
   end
 
   it '5. find table/view/stream in given source' do
