@@ -1,32 +1,14 @@
 # frozen_string_literal: true
 
 require_relative "airbyte/version"
-require "airbyte/base_client"
 
-require "airbyte/resources/workspace"
-require "airbyte/resources/source_definition"
-require "airbyte/resources/destination_definition"
-require "airbyte/resources/jobs"
-require "airbyte/resources/scheduler"
-require "airbyte/resources/source"
-require "airbyte/resources/destination"
-require "airbyte/resources/sync_connection"
 require "faraday"
 require 'ostruct'
 require 'typhoeus'
-require 'typhoeus/adapters/faraday'
 require 'connection_pool'
-
 module Airbyte
-  class Error < StandardError; end
-  # Your code goes here...
-  # def self.url
-  #   @url
-  # end
-  # def self.conn
-  #   @conn
-  # end
-  
+  class Error < StandardError; end  
+
   def self.configuration
     @configuration ||= OpenStruct.new
   end
@@ -34,9 +16,14 @@ module Airbyte
     @options
   end
 
-  def self.connection
-    @connection
+  def self.connection_config_api
+    @connection_config_api
   end
+
+  def self.connection_airbyte_api
+    @connection_airbyte_api
+  end
+
   class Config < OpenStruct
   end
 
@@ -44,15 +31,49 @@ module Airbyte
     @configuration = Airbyte::Config.new
 
     yield(configuration)
-    @connection = ConnectionPool::Wrapper.new(size: @configuration.pool || 32, timeout: @configuration.timeout || 10) do
-      connection = Faraday.new(:url => @configuration.host + ":#{@configuration.port|| 80}") do |builder|
+    @connection_config_api = ConnectionPool::Wrapper.new(size: @configuration.pool || 32, timeout: @configuration.timeout || 10) do
+      connection = Faraday.new(:url => @configuration.host + ":#{@configuration.port_config_api|| 80}") do |builder|
         if @configuration.log_faraday_responses
           builder.use Faraday::Response::Logger, @configuration.logger || :logger
         end
-        builder.use Faraday::Adapter::Typhoeus
+        builder.basic_auth(@configuration.user_name, @configuration.password)
+        builder.adapter :typhoeus
       end
-      connection.path_prefix = ""
       connection
     end
+    @connection_airbyte_api = ConnectionPool::Wrapper.new(size: @configuration.pool || 32, timeout: @configuration.timeout || 10) do
+      connection = Faraday.new(:url => @configuration.host + ":#{@configuration.port_airbyte_api|| 80}") do |builder|
+        if @configuration.log_faraday_responses
+          builder.use Faraday::Response::Logger, @configuration.logger || :logger
+        end
+        builder.basic_auth(@configuration.user_name, @configuration.password)
+        builder.adapter :typhoeus
+      end
+      connection
+    end
+
+    require "airbyte/base_client"
+    require "airbyte/error"
+    # Powered By Airbyte APIs V1
+    require "airbyte/powered_by_api/api_client"
+    require "airbyte/powered_by_api/v1/constants"
+    require "airbyte/powered_by_api/v1/workspace"
+    require "airbyte/powered_by_api/v1/source"
+    require "airbyte/powered_by_api/v1/destination"
+    require "airbyte/powered_by_api/v1/sync_connection"
+    require "airbyte/powered_by_api/v1/stream"
+    require "airbyte/powered_by_api/v1/job"
+
+    # Airbyte Config APIs V1
+    require "airbyte/config_api/config_api_client"
+    require "airbyte/config_api/v1/constants"
+    require "airbyte/config_api/v1/source_definition"
+    require "airbyte/config_api/v1/destination_definition"
+    require "airbyte/config_api/v1/job"
+    require "airbyte/config_api/v1/scheduler"
+    require "airbyte/config_api/v1/source"
+    require "airbyte/config_api/v1/destination"
+    require "airbyte/config_api/v1/workspace"
+    require "airbyte/config_api/v1/sync_connection"
   end
 end
