@@ -50,7 +50,7 @@ module Airbyte
         status = "succeeded"
       elsif STATUSES_FAILED.include? job["status"]
         failed_attempt = attempts.find{|i| i["attempt"]["status"] == "failed"}['attempt']
-        stats = failed_attempt["totalStats"]
+        stats = failed_attempt.fetch("totalStats", {})
         total_records = stats.fetch('recordsEmitted', nil)
         successful_records = failed_attempt.fetch('recordsSynced', nil)
         bytes_synced = failed_attempt.fetch('bytesSynced', nil)
